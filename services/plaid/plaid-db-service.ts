@@ -34,7 +34,7 @@ class PlaidDbService {
     async getAccessTokenByUser(firbaseUserId: string): Promise<AccessToken> {
         const client = await this.getClient()
         const result = await client.query(
-            "select access_token, item_id from plaid.access_tokens where firebase_user_id = $1",
+            "select access_token, item_id from plaid.access_token where firebase_user_id = $1",
             [firbaseUserId]
         )
         return {

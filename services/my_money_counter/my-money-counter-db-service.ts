@@ -1,6 +1,5 @@
 import { AuthGetResponse, ItemPublicTokenExchangeResponse } from "plaid";
 import { Client, connect } from 'ts-postgres';
-import AccessToken from "../../models/AccessToken";
 import PlaidAccount from "../../models/PlaidAccount";
 
 class MyMoneyCounterDbService {
@@ -25,7 +24,7 @@ class MyMoneyCounterDbService {
         const client = await this.getClient()
         const result = await client.query(
             `SELECT id, item_id, account_id, mask, account_name, official_name, persistent_account_id, account_sub_type, account_type, available_balance, current_balance, currency_code, date_created FROM plaid.account where item_id in (
-                select item_id from plaid.access_tokens where firebase_user_id = $1
+                select item_id from plaid.access_token where firebase_user_id = $1
             )
             `,
             [firbaseUserId]
