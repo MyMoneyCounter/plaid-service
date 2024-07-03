@@ -1,5 +1,5 @@
 import { AuthGetResponse, ItemPublicTokenExchangeResponse } from "plaid";
-import { Client, connect } from 'ts-postgres';
+import { Client, connect, SSLMode } from 'ts-postgres';
 import AccessToken from "../../models/AccessToken";
 
 class PlaidDbService {
@@ -15,12 +15,13 @@ class PlaidDbService {
                 port: 5432,
                 user: "moneycounteradmin",
                 password: "Easyas1234",
-                database: "my_money_counter"
+                database: "my_money_counter",
+                ssl: {
+                    mode: SSLMode.Require
+                }
             })
         }
     }
-
-
 
     async saveAccessToken(publicToken: string, firbaseUserId: string, accessTokenResponse: ItemPublicTokenExchangeResponse): Promise<Boolean> {
         const client = await this.getClient()

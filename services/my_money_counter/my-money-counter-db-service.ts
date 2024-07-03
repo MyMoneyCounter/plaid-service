@@ -1,5 +1,5 @@
 import { AuthGetResponse, ItemPublicTokenExchangeResponse } from "plaid";
-import { Client, connect } from 'ts-postgres';
+import { Client, connect, SSLMode } from 'ts-postgres';
 import PlaidAccount from "../../models/PlaidAccount";
 
 class MyMoneyCounterDbService {
@@ -15,7 +15,10 @@ class MyMoneyCounterDbService {
                 port: 5432,
                 user: "moneycounteradmin",
                 password: "Easyas1234",
-                database: "my_money_counter"
+                database: "my_money_counter",
+                ssl: {
+                    mode: SSLMode.Require
+                }
             })
         }
     }

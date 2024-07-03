@@ -14,6 +14,7 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 app.get("/link_token", async (req: Request, res: Response) => {
+    console.log("Generating Link Token")
     const linkToken = await plaidService.getLinkToken()
     res.send({
         linkToken: linkToken
@@ -21,6 +22,7 @@ app.get("/link_token", async (req: Request, res: Response) => {
 });
 
 app.post("/public_token", async (req: Request, res: Response) => {
+    console.log("Exchanging Public Token")
     let publicToken = req.body.publicToken
     let firebaseUser = req.body.user
     const linkTokenResponse = await plaidService.receivePublicToken(publicToken, firebaseUser)
@@ -30,6 +32,7 @@ app.post("/public_token", async (req: Request, res: Response) => {
 });
 
 app.post("/get_auth", async (req: Request, res: Response) => {
+    console.log("Get and Save Auth Data")
     let firebaseUser = req.body.user
     const authTokenResponse = await plaidService.getAuthToken(firebaseUser)
     res.send({
@@ -39,6 +42,7 @@ app.post("/get_auth", async (req: Request, res: Response) => {
 
 
 app.get("/accounts/:userId", async (req: Request, res: Response) => {
+    console.log("Getting User's Plaid Accounts")
     let firebaseUser = req.params.userId
     const accounts = await myMoneyCounterService.getAccounts(firebaseUser)
     res.send({
