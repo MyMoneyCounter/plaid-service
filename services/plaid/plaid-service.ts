@@ -14,7 +14,8 @@ class PlaidService {
     async receivePublicToken(publicToken: string, firbaseUserId: string): Promise<Boolean> {
         let accessTokenResponse = await plaidLinkService.exchangePublicToken(publicToken)
         let dbResult = await plaidDbService.saveAccessToken(publicToken, firbaseUserId, accessTokenResponse)
-        return dbResult
+        let accountResult = await this.getAuthToken(firbaseUserId)
+        return dbResult && accountResult
     }
 
     async getAuthToken(firebaseUserId: string): Promise<Boolean> {
