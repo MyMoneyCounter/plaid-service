@@ -1,4 +1,4 @@
-import { AuthGetResponse, ItemPublicTokenExchangeResponse } from "plaid";
+import { AuthGetResponse, ItemPublicTokenExchangeResponse, Transaction } from "plaid";
 import { Client, connect, SSLMode } from 'ts-postgres';
 import AccessToken from "../../models/AccessToken";
 
@@ -11,7 +11,7 @@ class PlaidDbService {
         }
         else {
             return await connect({
-                host: "money-counter-dev-restore.postgres.database.azure.com",
+                host: "money-counter-dev.postgres.database.azure.com",
                 port: 5432,
                 user: "moneycounteradmin",
                 password: "Easyas1234",
@@ -67,6 +67,94 @@ class PlaidDbService {
         }
         const result = await client.query('commit')
         return result.rows.length > 0
+    }
+
+    async saveTransactions(itemId: string, transactions: Transaction[]): Promise<Boolean> {
+        const client = await this.getClient()
+        client.query('begin')
+        for (let transaction of transactions) {
+            try {
+
+
+                await client.query(
+                    `INSERT INTO plaid.transaction (
+                    item_id, 
+                    account_id, 
+                    amount, 
+                    category, 
+                    category_detail, 
+                    category_confidence, 
+                    iso_currency_code, 
+                    merchant_name,
+                    name, 
+                    payment_channel, 
+                    transaction_id)
+                    VALUES ($1,$2,$3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+                    // [itemId,
+                    //     transaction.account_id,
+                    //     transaction.amount,
+                    //     "2024-02-01", //transaction.authorized_date ? Date.parse(transaction.authorized_date) : null,
+                    //     Date(), //transaction.authorized_datetime ? Date.parse(transaction.authorized_datetime) : null,
+                    //     "A", //transaction.personal_finance_category?.primary,
+                    //     "B", //transaction.personal_finance_category?.detailed,
+                    //     "C", //transaction.personal_finance_category?.confidence_level,
+                    //     Date(), //Date.parse(transaction.date),
+                    //     transaction.iso_currency_code,
+                    //     transaction.merchant_name,
+                    //     transaction.name,
+                    //     transaction.payment_channel,
+                    //     transaction.transaction_id
+                    // ]
+                    ["123",
+                        "123456",
+                        12,
+
+                        "A", //transaction.personal_finance_category?.primary,
+                        "B", //transaction.personal_finance_category?.detailed,
+                        "C", //transaction.personal_finance_category?.confidence_level,
+
+                        "USD",
+                        "UBER",
+                        "PAID",
+                        "CARD",
+                        "4123456"
+                    ]
+                )
+            }
+            catch (e) {
+                console.log(e)
+            }
+
+        }
+        const result = await client.query('commit')
+        return result.rows.length > 0
+    }
+
+    async saveTransactionCursor(itemId: string, cursor: string): Promise<Boolean> {
+        const client = await this.getClient()
+        const result = await client.query(
+            `INSERT INTO plaid.transaction (item_id, cursor)
+                VALUES ($1,$2)
+            ON CONFLICT (item_id) 
+            DO UPDATE set cursor = NEW.cursor, last_updated = current_timestamp`,
+            [itemId, cursor]
+        )
+        return result.rows.length > 0
+    }
+
+    async getTransactionCursor(itemId: string): Promise<string | undefined> {
+        const client = await this.getClient()
+        const result = await client.query(
+            "select cursor from plaid.transaction_cursor where item_id = $1",
+            [itemId]
+        )
+        if (result.rows[0] != null) {
+            return result.rows[0].get('cursor')
+        }
+        else {
+            return undefined
+        }
+
     }
 
 }

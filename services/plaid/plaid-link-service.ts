@@ -1,4 +1,4 @@
-import { AuthGetResponse, Configuration, CountryCode, ItemPublicTokenExchangeResponse, PlaidApi, PlaidEnvironments, Products } from 'plaid';
+import { AuthGetResponse, Configuration, CountryCode, ItemPublicTokenExchangeResponse, PlaidApi, PlaidEnvironments, Products, TransactionsSyncResponse } from 'plaid';
 
 const configuration = new Configuration({
     basePath: PlaidEnvironments.sandbox,
@@ -47,6 +47,18 @@ class PlaidLinkService {
     async getAuth(access_token: string): Promise<AuthGetResponse> {
         return plaidClient.authGet({
             access_token: access_token
+        })
+            .then((authResonse) => authResonse.data)
+            .catch((error) => {
+                console.error("Failed to get auth", error.response.data)
+                throw Error(`Failed to get auth, ${error.response.data}`)
+            })
+    }
+
+    async getTransactions(access_token: string, cursor?: string): Promise<TransactionsSyncResponse> {
+        return plaidClient.transactionsSync({
+            access_token: access_token,
+            cursor: cursor
         })
             .then((authResonse) => authResonse.data)
             .catch((error) => {

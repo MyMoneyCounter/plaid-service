@@ -11,7 +11,7 @@ class MyMoneyCounterDbService {
         }
         else {
             return await connect({
-                host: "money-counter-dev-restore.postgres.database.azure.com",
+                host: "money-counter-dev.postgres.database.azure.com",
                 port: 5432,
                 user: "moneycounteradmin",
                 password: "Easyas1234",

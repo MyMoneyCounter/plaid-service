@@ -50,6 +50,17 @@ app.get("/accounts/:userId", async (req: Request, res: Response) => {
     });
 });
 
+
+app.post("/sync_transactions/:userId", async (req: Request, res: Response) => {
+    console.log("Syncing User Transactions")
+    let firebaseUser = req.params.userId
+    const accounts = await plaidService.syncTransactions(firebaseUser)
+    res.send({
+        accounts: accounts
+    });
+});
+
+
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
 });

@@ -27,6 +27,28 @@ class PlaidService {
     }
 
 
+    async syncTransactions(firebaseUserId: string): Promise<Boolean> {
+        let tokens = await plaidDbService.getAccessTokenByUser(firebaseUserId)
+        let cursor = await plaidDbService.getTransactionCursor(tokens.itemId)
+        return this.syncAllTransactons(tokens.accessToken, tokens.itemId, cursor)
+    }
+
+    private async syncAllTransactons(accessToken: string, itemId: string, cursor: string | undefined): Promise<Boolean> {
+        let transactionsResponse = await plaidLinkService.getTransactions(accessToken, cursor)
+
+        let saveResult = await plaidDbService.saveTransactions(itemId, transactionsResponse.added)
+
+
+        if (transactionsResponse.has_more) {
+            return this.syncAllTransactons(accessToken, itemId, transactionsResponse.next_cursor)
+        }
+        else {
+            let saveCursorResult = await plaidDbService.saveTransactionCursor(itemId, transactionsResponse.next_cursor)
+            return saveCursorResult;
+        }
+    }
+
+
 }
 
 export const plaidService = new PlaidService()
