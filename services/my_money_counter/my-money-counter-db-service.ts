@@ -40,7 +40,7 @@ class MyMoneyCounterDbService {
                 accountName: row.get('account_name'),
                 officialName: row.get('official_name'),
                 persistentAccountId: row.get('persistent_account_id'),
-                acountSubType: row.get('account_sub_type'),
+                accountSubType: row.get('account_sub_type'),
                 accountType: row.get('account_type'),
                 availableBalance: row.get('available_balance'),
                 currentBalance: row.get('current_balance'),

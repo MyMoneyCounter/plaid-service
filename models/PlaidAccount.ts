@@ -5,7 +5,7 @@ interface PlaidAccount {
     accountName: string,
     officialName: string | null,
     persistentAccountId: string | null,
-    acountSubType: string,
+    accountSubType: string,
     accountType: string,
     availableBalance: number | null,
     currentBalance: number,
