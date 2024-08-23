@@ -6,8 +6,15 @@ class PlaidService {
 
     constructor() { }
 
-    async getLinkToken(): Promise<string> {
-        let linkToken = (await plaidLinkService.createLinkToken())
+    async getLinkToken(user: string, mode: string): Promise<string> {
+        let linkToken = ""
+        if (mode == "UPDATE") {
+            let accessToken = await plaidDbService.getAccessTokenByUser(user)
+            linkToken = (await plaidLinkService.createLinkToken(accessToken.accessToken))
+        }
+        else {
+            linkToken = (await plaidLinkService.createLinkToken())
+        }
         return linkToken
     }
 
@@ -30,13 +37,16 @@ class PlaidService {
     async syncTransactions(firebaseUserId: string): Promise<Boolean> {
         let tokens = await plaidDbService.getAccessTokenByUser(firebaseUserId)
         let cursor = await plaidDbService.getTransactionCursor(tokens.itemId)
+        console.log(tokens, cursor)
         return this.syncAllTransactons(tokens.accessToken, tokens.itemId, cursor)
     }
 
     private async syncAllTransactons(accessToken: string, itemId: string, cursor: string | undefined): Promise<Boolean> {
         let transactionsResponse = await plaidLinkService.getTransactions(accessToken, cursor)
 
-        let saveResult = await plaidDbService.saveTransactions(itemId, transactionsResponse.added)
+        if (transactionsResponse.added.length > 0) {
+            await plaidDbService.saveTransactions(itemId, transactionsResponse.added)
+        }
 
 
         if (transactionsResponse.has_more) {

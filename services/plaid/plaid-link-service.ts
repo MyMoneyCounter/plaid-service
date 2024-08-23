@@ -16,7 +16,8 @@ class PlaidLinkService {
 
     constructor() { }
 
-    async createLinkToken(): Promise<string> {
+    async createLinkToken(accessToken: string | undefined = undefined): Promise<string> {
+        console.log("Using Acces Token: ", accessToken)
         return plaidClient.linkTokenCreate({
             client_name: "Money Smart",
             language: "en",
@@ -24,6 +25,7 @@ class PlaidLinkService {
             user: {
                 'client_user_id': '64a85063b3e32f001ae141d8',
             },
+            access_token: accessToken,
             products: [Products.Auth, Products.Transactions, Products.Liabilities]
         })
             .then((linkTokenResponse) => linkTokenResponse.data.link_token)

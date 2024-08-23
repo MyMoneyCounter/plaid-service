@@ -15,7 +15,10 @@ app.use(bodyParser.json());
 
 app.get("/link_token", async (req: Request, res: Response) => {
     console.log("Generating Link Token")
-    const linkToken = await plaidService.getLinkToken()
+    const user = req.query.user as string
+    const mode = req.query.mode as string
+    console.log(user, mode)
+    const linkToken = await plaidService.getLinkToken(user, mode)
     res.send({
         linkToken: linkToken
     });
@@ -56,7 +59,7 @@ app.post("/sync_transactions/:userId", async (req: Request, res: Response) => {
     let firebaseUser = req.params.userId
     const accounts = await plaidService.syncTransactions(firebaseUser)
     res.send({
-        accounts: accounts
+        success: accounts
     });
 });
 

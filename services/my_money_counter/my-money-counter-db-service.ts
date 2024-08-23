@@ -1,25 +1,25 @@
-import { AuthGetResponse, ItemPublicTokenExchangeResponse } from "plaid";
-import { Client, connect, SSLMode } from 'ts-postgres';
+import { Client } from "pg";
 import PlaidAccount from "../../models/PlaidAccount";
 
 class MyMoneyCounterDbService {
-    client!: Client;
+    private client!: Client;
 
-    private async getClient() {
+    private async getClient(): Promise<Client> {
         if (this.client != null) {
             return this.client
         }
         else {
-            return await connect({
+            this.client = new Client({
                 host: "money-counter-dev.postgres.database.azure.com",
                 port: 5432,
                 user: "moneycounteradmin",
                 password: "Easyas1234",
                 database: "my_money_counter",
-                ssl: {
-                    mode: SSLMode.Require
-                }
+                ssl: true
             })
+
+            await this.client.connect();
+            return this.client;
         }
     }
 
@@ -34,18 +34,18 @@ class MyMoneyCounterDbService {
         )
         return result.rows.map((row) => {
             let account: PlaidAccount = {
-                itemId: row.get('item_id'),
-                accountId: row.get('account_id'),
-                mask: row.get('mask'),
-                accountName: row.get('account_name'),
-                officialName: row.get('official_name'),
-                persistentAccountId: row.get('persistent_account_id'),
-                accountSubType: row.get('account_sub_type'),
-                accountType: row.get('account_type'),
-                availableBalance: row.get('available_balance'),
-                currentBalance: row.get('current_balance'),
-                currencyCode: row.get('currency_code'),
-                dateCreated: row.get('date_created')
+                itemId: row.item_id,
+                accountId: row.account_id,
+                mask: row.mask,
+                accountName: row.account_name,
+                officialName: row.official_name,
+                persistentAccountId: row.persistent_account_id,
+                accountSubType: row.account_sub_type,
+                accountType: row.account_type,
+                availableBalance: row.available_balance,
+                currentBalance: row.current_balance,
+                currencyCode: row.currency_code,
+                dateCreated: row.date_created
             }
             return account
         }
