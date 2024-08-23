@@ -1,4 +1,3 @@
-import LinkTokenResponse from "../../models/AccessToken";
 import { plaidDbService } from "./plaid-db-service";
 import { plaidLinkService } from "./plaid-link-service";
 
@@ -6,10 +5,10 @@ class PlaidService {
 
     constructor() { }
 
-    async getLinkToken(user: string, mode: string): Promise<string> {
+    async getLinkToken(user: string, item: string | undefined): Promise<string> {
         let linkToken = ""
-        if (mode == "UPDATE") {
-            let accessToken = await plaidDbService.getAccessTokenByUser(user)
+        if (item) {
+            let accessToken = await plaidDbService.getAccessTokenForItem(user, item)
             linkToken = (await plaidLinkService.createLinkToken(accessToken.accessToken))
         }
         else {
@@ -21,22 +20,22 @@ class PlaidService {
     async receivePublicToken(publicToken: string, firbaseUserId: string): Promise<Boolean> {
         let accessTokenResponse = await plaidLinkService.exchangePublicToken(publicToken)
         let dbResult = await plaidDbService.saveAccessToken(publicToken, firbaseUserId, accessTokenResponse)
-        let accountResult = await this.getAuthToken(firbaseUserId)
+        let accountResult = await this.getAuthToken(firbaseUserId, accessTokenResponse.item_id)
         return dbResult && accountResult
     }
 
-    async getAuthToken(firebaseUserId: string): Promise<Boolean> {
-        let tokens = await plaidDbService.getAccessTokenByUser(firebaseUserId)
+    async getAuthToken(firebaseUserId: string, itemId: string): Promise<Boolean> {
+        let tokens = await plaidDbService.getAccessTokenForItem(firebaseUserId, itemId)
         let authTokenResponse = await plaidLinkService.getAuth(tokens.accessToken)
         let authResult = await plaidDbService.saveAuthResponse(tokens.itemId, authTokenResponse)
         let accountsResult = await plaidDbService.saveAccounts(tokens.itemId, authTokenResponse)
-        let transactionResult = await this.syncTransactions(firebaseUserId)
+        let transactionResult = await this.syncTransactions(firebaseUserId, itemId)
         return authResult && accountsResult && transactionResult
     }
 
 
-    async syncTransactions(firebaseUserId: string): Promise<Boolean> {
-        let tokens = await plaidDbService.getAccessTokenByUser(firebaseUserId)
+    async syncTransactions(firebaseUserId: string, itemId: string): Promise<Boolean> {
+        let tokens = await plaidDbService.getAccessTokenForItem(firebaseUserId, itemId)
         let cursor = await plaidDbService.getTransactionCursor(tokens.itemId)
         console.log(tokens, cursor)
         return this.syncAllTransactons(tokens.accessToken, tokens.itemId, cursor)

@@ -16,9 +16,9 @@ app.use(bodyParser.json());
 app.get("/link_token", async (req: Request, res: Response) => {
     console.log("Generating Link Token")
     const user = req.query.user as string
-    const mode = req.query.mode as string
-    console.log(user, mode)
-    const linkToken = await plaidService.getLinkToken(user, mode)
+    const item = req.query.item as string | undefined
+    console.log(user, item)
+    const linkToken = await plaidService.getLinkToken(user, item)
     res.send({
         linkToken: linkToken
     });
@@ -37,7 +37,8 @@ app.post("/public_token", async (req: Request, res: Response) => {
 app.post("/get_auth", async (req: Request, res: Response) => {
     console.log("Get and Save Auth Data")
     let firebaseUser = req.body.user
-    const authTokenResponse = await plaidService.getAuthToken(firebaseUser)
+    let itemId = req.body.itemId
+    const authTokenResponse = await plaidService.getAuthToken(firebaseUser, itemId)
     res.send({
         result: true
     });
@@ -56,8 +57,9 @@ app.get("/accounts/:userId", async (req: Request, res: Response) => {
 
 app.post("/sync_transactions/:userId", async (req: Request, res: Response) => {
     console.log("Syncing User Transactions")
-    let firebaseUser = req.params.userId
-    const accounts = await plaidService.syncTransactions(firebaseUser)
+    let firebaseUser = req.body.user
+    let itemId = req.body.itemId
+    const accounts = await plaidService.syncTransactions(firebaseUser, itemId)
     res.send({
         success: accounts
     });
