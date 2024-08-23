@@ -30,7 +30,8 @@ class PlaidService {
         let authTokenResponse = await plaidLinkService.getAuth(tokens.accessToken)
         let authResult = await plaidDbService.saveAuthResponse(tokens.itemId, authTokenResponse)
         let accountsResult = await plaidDbService.saveAccounts(tokens.itemId, authTokenResponse)
-        return authResult && accountsResult
+        let transactionResult = await this.syncTransactions(firebaseUserId)
+        return authResult && accountsResult && transactionResult
     }
 
 
