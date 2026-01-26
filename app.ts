@@ -71,6 +71,56 @@ app.post("/sync_transactions/:userId", async (req: Request, res: Response) => {
     });
 });
 
+// Budget endpoints
+app.get("/budget/:userId", async (req: Request, res: Response) => {
+    console.log("Getting User's Budget Data")
+    try {
+        let firebaseUser = req.params.userId
+        const budgetData = await myMoneyCounterService.getBudgetData(firebaseUser)
+        res.send(budgetData);
+    } catch (error) {
+        console.error("Error getting budget data:", error)
+        res.status(500).send({ error: "Failed to get budget data" })
+    }
+});
+
+app.get("/budget/:userId/progress", async (req: Request, res: Response) => {
+    console.log("Getting User's Budget Progress")
+    try {
+        let firebaseUser = req.params.userId
+        const budgetProgress = await myMoneyCounterService.getBudgetProgress(firebaseUser)
+        res.send({ budgetProgress });
+    } catch (error) {
+        console.error("Error getting budget progress:", error)
+        res.status(500).send({ error: "Failed to get budget progress" })
+    }
+});
+
+app.get("/budget/:userId/estimated", async (req: Request, res: Response) => {
+    console.log("Getting User's Estimated Budget")
+    try {
+        let firebaseUser = req.params.userId
+        const estimatedBudget = await myMoneyCounterService.getEstimatedBudget(firebaseUser)
+        res.send({ estimatedBudget });
+    } catch (error) {
+        console.error("Error getting estimated budget:", error)
+        res.status(500).send({ error: "Failed to get estimated budget" })
+    }
+});
+
+app.get("/transactions/:userId", async (req: Request, res: Response) => {
+    console.log("Getting User's Transactions")
+    try {
+        let firebaseUser = req.params.userId
+        let limit = parseInt(req.query.limit as string) || 50
+        const transactions = await myMoneyCounterService.getTransactions(firebaseUser, limit)
+        res.send({ transactions });
+    } catch (error) {
+        console.error("Error getting transactions:", error)
+        res.status(500).send({ error: "Failed to get transactions" })
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`[server]: Server is running at http://localhost:${port}`);
