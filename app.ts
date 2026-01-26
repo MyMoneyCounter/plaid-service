@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import { plaidService } from "./services/plaid/plaid-service";
 import bodyParser from "body-parser";
 import { myMoneyCounterService } from "./services/my_money_counter/my-money-count-service";
@@ -10,7 +11,12 @@ dotenv.config();
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
-
+// Enable CORS for all origins (for development)
+// In production, you should restrict this to your domain
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 app.get("/link_token", async (req: Request, res: Response) => {
